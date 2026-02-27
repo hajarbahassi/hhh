@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Premium Rent - Smart AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Poppins:wght@300;500&display=swap" rel="stylesheet">
+    <style>
+        :root { --gold: #d4af37; --bg: #050505; }
+        body { background: var(--bg); font-family: 'Poppins', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
+        
+        /* Animation de fond pour l'effet "Wow" */
+        body::before { content: ""; position: absolute; width: 200%; height: 200%; background: conic-gradient(from 0deg, transparent, var(--gold), transparent 30%); animation: rotate 10s linear infinite; opacity: 0.05; z-index: -1; }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .chat-card { width: 450px; height: 75vh; background: #111; border: 1px solid #333; border-radius: 30px; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; overflow: hidden; }
+        
+        header { background: #000; padding: 25px; text-align: center; border-bottom: 2px solid var(--gold); }
+        header h2 { font-family: 'Orbitron'; font-size: 1rem; color: var(--gold); margin: 0; letter-spacing: 2px; }
+
+        #screen { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; scrollbar-width: none; }
+        
+        .msg { padding: 14px 18px; border-radius: 20px; font-size: 0.95rem; max-width: 85%; animation: fadeIn 0.3s ease; line-height: 1.4; }
+        .bot { background: rgba(255,255,255,0.05); border: 1px solid #222; align-self: flex-start; border-bottom-left-radius: 2px; }
+        .user { background: var(--gold); color: #000; font-weight: 600; align-self: flex-end; border-bottom-right-radius: 2px; }
+
+        .options { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+        .opt-btn { background: none; border: 1px solid var(--gold); color: var(--gold); padding: 5px 12px; border-radius: 20px; cursor: pointer; font-size: 0.8rem; transition: 0.3s; }
+        .opt-btn:hover { background: var(--gold); color: #000; }
+
+        .input-area { padding: 20px; background: #000; display: flex; gap: 10px; }
+        input { flex: 1; background: #1a1a1a; border: 1px solid #333; padding: 15px; color: white; border-radius: 15px; outline: none; }
+        button#send-btn { background: var(--gold); border: none; padding: 0 20px; border-radius: 15px; cursor: pointer; font-weight: bold; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="chat-card">
+    <header><h2>PREMIUM RENT CONCIERGE</h2></header>
+    <div id="screen">
+        <div class="msg bot">
+            Bienvenue chez Premium Rent. Je suis votre concierge personnel. <br><br>
+            Nos véhicules d'exception :
+            <div class="options">
+                <button class="opt-btn" onclick="quick('BMW')">BMW</button>
+                <button class="opt-btn" onclick="quick('Skoda Octavia')">Octavia</button>
+                <button class="opt-btn" onclick="quick('Passat CC')">Passat CC</button>
+                <button class="opt-btn" onclick="quick('Citroën C-Elysée')">C-Elysée</button>
+            </div>
+        </div>
+    </div>
+    <div class="input-area">
+        <input type="text" id="user-in" placeholder="Posez votre question (ex: prix en MAD)...">
+        <button id="send-btn" onclick="handleChat()">OK</button>
+    </div>
+</div>
+
+<script>
+    const fleet = {
+        bmw: { name: "BMW Série 5", eur: 90, mad: 950, status: "Disponible" },
+        octavia: { name: "Skoda Octavia", eur: 50, mad: 550, status: "Disponible" },
+        passat: { name: "Volkswagen Passat CC", eur: 60, mad: 650, status: "Indisponible" },
+        elysee: { name: "Citroën C-Elysée", eur: 35, mad: 380, status: "Disponible" }
+    };
+
+    function addMsg(text, type) {
+        const div = document.createElement('div');
+        div.className = `msg ${type}`;
+        div.innerHTML = text;
+        document.getElementById('screen').appendChild(div);
+        document.getElementById('screen').scrollTop = document.getElementById('screen').scrollHeight;
+    }
+
+    function quick(val) {
+        document.getElementById('user-in').value = val;
+        handleChat();
+    }
+
+    function handleChat() {
+        const input = document.getElementById('user-in');
+        const val = input.value.trim();
+        if(!val) return;
+
+        addMsg(val, 'user');
+        input.value = "";
+
+        setTimeout(() => {
+            const low = val.toLowerCase();
+            let res = "Je suis là pour vous aider. Voulez-vous connaître les tarifs en <b>MAD</b> ou la <b>disponibilité</b> de nos véhicules ?";
+
+            if(low.includes("bonjour") || low.includes("salut")) {
+                res = "Bonjour ! Comment puis-je vous aider dans votre location aujourd'hui ?";
+            }
+            else if(low.includes("mad") || low.includes("dirham")) {
+                res = `<b>Tarifs en Dirhams (MAD) :</b><br>
+                       • BMW : 950 MAD/j<br>
+                       • Passat CC : 650 MAD/j<br>
+                       • Octavia : 550 MAD/j<br>
+                       • C-Elysée : 380 MAD/j`;
+            }
+            else if(low.includes("bmw")) {
+                res = `🚘 <b>${fleet.bmw.name}</b><br>Prix: ${fleet.bmw.mad} MAD/j<br>État: ${fleet.bmw.status}`;
+            }
+            else if(low.includes("octavia")) {
+                res = `🚘 <b>${fleet.octavia.name}</b><br>Prix: ${fleet.octavia.mad} MAD/j<br>État: ${fleet.octavia.status}`;
+            }
+            else if(low.includes("passat")) {
+                res = `🚘 <b>${fleet.passat.name}</b><br>Prix: ${fleet.passat.mad} MAD/j<br>État: ${fleet.passat.status}`;
+            }
+            else if(low.includes("elysee")) {
+                res = `🚘 <b>${fleet.elysee.name}</b><br>Prix: ${fleet.elysee.mad} MAD/j<br>État: ${fleet.elysee.status}`;
+            }
+            else if(low.includes("dispo")) {
+                res = "Nous avons actuellement la BMW, la Skoda et la C-Elysée de prêtes. La Passat est en cours de révision.";
+            }
+
+            addMsg(res, 'bot');
+        }, 600);
+    }
+</script>
+</body>
+</html>
